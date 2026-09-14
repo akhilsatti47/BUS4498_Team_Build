@@ -4,8 +4,6 @@
 
 **Problem to be solved**: Increase the attendance to the registration rate in the margin of 30-40% for the organization CodeBox events that are held at Cal Poly Slo club meetings. Our system aims to improve this ratio by identifying at-risk registrants early and prompting timely confirmations, so staff officials can plan more accurately and reduce wasted resources.
 
-*Replace every bracketed prompt below with your team's information. Delete this instruction and any unused placeholder text before committing the completed charter.*
-
 ## Team Charter
 
 ### Team Name
