@@ -1,65 +1,76 @@
-# [Exact task name] Task Specification
-
-*BUS 4498 Team Build Milestone 1. Use one copy for each L0, L1, or L2 task, including human-review tasks. Use the Level 3 template for L3 tasks.*
-
-*Save each completed copy in `our_team_agent/agent/task-specs/` in `BUS4498_Team_Build`. Name the file after the task using lowercase words separated by hyphens: Check Completeness becomes `check-completeness.md`. Replace `&` with `and` and remove other punctuation. Keep the exact workflow task ID and name inside the file.*
-
-*Replace every bracketed prompt, copy input/output/tool blocks as needed, and remove unused blocks and instructions. Specify the design; do not create tool scripts. Record the reason for the automation level only in the team worksheet.*
+# Review and Release Report Task Specification
 
 ## Basic Information
 
-- **Task ID:** [Exact ID from the workflow.]
-- **Task name:** [Exact verb-object task name from the workflow.]
-- **Task type:** [Choose the primary type: Retrieve, Sense, Reason, Decide, Act, Verify, Remember, or Learn.]
-- **Task owner:** [Person or role accountable for this task.]
-
-*Task type describes the work. Automation level describes how it is performed. Tool type describes its proposed implementation.*
+- **Task ID:** T05
+- **Task name:** Review and Release Report
+- **Task type:** Decide
+- **Task owner:** Assigned human reviewer, either Purajit Ghosh or Akhil Satti.
 
 ## 1. Task Description
 
-[Explain what the task does and why the workflow needs it. Identify the rule, criteria, model-supported operation, or human judgment used to turn its inputs into the required output.]
+The human reviewer evaluates the research evidence and any draft report before deciding whether to approve and release the report, request the one permitted additional research pass, or close the run with an explanation.
+
+The reviewer checks that the report answers the research question, accurately represents the supplied evidence, includes working source references, and clearly identifies uncertainty. A report cannot be released solely because it appears confident or well written.
+
+This task also handles insufficient-evidence handoffs from T03 and drafting failures from T04. It does not place bets or authorize access beyond the research task's existing permissions.
 
 ## 2. Inputs
 
 ### Input 1
 
-- **Input name:** [Short, specific name.]
-- **Contents and format:** [Required fields or information and their form, such as a table, structured record, document, image, or human response. Describe the structure; do not invent case data.]
-- **Source:** [Task ID and name, person or role, or named data source that provides the input.]
+- **Input name:** Matchup Evidence Package
+- **Contents and format:** A structured record containing the request ID, requester delivery destination, teams, game date, research question, research-pass number, findings, source links, timestamps, tool failures, and unresolved issues.
+- **Source:** T03 Research Matchup, directly for escalations or accompanying the draft from T04 Draft Research Report.
 
-*Copy the Input block for each additional input.*
+### Input 2
 
-- **If a required input is missing or invalid:** [State what happens and identify the exception task or responsible person.]
+- **Input name:** Draft Research Report
+- **Contents and format:** A Markdown report containing the matchup summary, evidence, analysis, uncertainty, source references, and status Draft — Pending Human Review. Required for report approval; it may be unavailable when an earlier task fails.
+- **Source:** T04 Draft Research Report.
+
+### Input 3
+
+- **Input name:** Exception Details
+- **Contents and format:** A research handoff note or Drafting Exception Record identifying the failure, available evidence, unresolved questions, and reason for escalation. Required when the case arrives through an exception path.
+- **Source:** T03 Research Matchup or T04 Draft Research Report.
+
+- **If a required input is missing or invalid:** Do not approve or release the report. Record the missing information and notify the team coordinator. The reviewer may request the one permitted additional research pass if T03 can resolve the problem within its existing permissions. Otherwise, close the run with an explanation. A missing draft is acceptable for reviewing an exception but not for approving a report.
 
 ## 3. Outputs
 
 ### Output 1
 
-- **Output name:** [Short, specific name.]
-- **Contents and format:** [Required fields or information and their form, including the result, status, or evidence needed by the recipient.]
-- **Next task or recipient:** [Task ID and name, person or role, or storage location that receives the output.]
-- **Complete when:** [Observable condition showing that this output is ready to use.]
+- **Output name:** Approved Research Report
+- **Contents and format:** The reviewed Markdown report with the request ID, reviewer name, approval timestamp, version, source references, uncertainty explanation, and status Approved. Include a delivery record identifying the recipient, delivery time, and destination.
+- **Next task or recipient:** Research requester, using the delivery destination recorded in the request.
+- **Complete when:** The reviewer confirms that the report addresses the research question, checks material factual claims against the supplied sources, records approval, and delivers the approved version to the requester.
 
-*Copy the Output block for each additional output.*
+### Output 2
+
+- **Output name:** Research Revision Instructions
+- **Contents and format:** A structured record containing the request ID, reviewer name, identified issues, specific evidence requiring clarification, and authorization for the one additional research pass.
+- **Next task or recipient:** T03 Research Matchup.
+- **Complete when:** Clear revision instructions have been handed to T03 and the request record shows that the additional pass has been authorized. This output is permitted only if no additional research pass has already been authorized.
+
+### Output 3
+
+- **Output name:** Review Closure Record
+- **Contents and format:** A structured record containing the request ID, status Closed — Unable to Complete or Closed — Review Deadline Expired, the reason, unresolved issues, responsible coordinator or reviewer, closure timestamp, and confirmation that an explanation was delivered.
+- **Next task or recipient:** Research requester and team coordinator.
+- **Complete when:** The unsuccessful closure is recorded and the requester receives an explanation. No report is labeled approved or successfully completed.
 
 ## 4. Planned Tools
 
-*Use a verb-object name, usually matching the task: Check Completeness can use `check_completeness`. List every tool separately and use the same name and type wherever the tool appears in the project.*
-
 ### Tool 1
 
-- **Tool name:** [Proposed verb-object name.]
-- **Input:** [replace with a input name listed above]
-- **Output:** [replace with a output name listed above]
-- **Implementation Route:** [file operations, functions/scripts, database queries, and web API calls]
-- **Integration approach:** [direct integration, or MCP integration]
-- **Role in this task:** [What the tool does with which inputs and what result it returns or state it changes.]
-- **Task timeout:** [Maximum total elapsed time for one task run, with units. For L0, state a human response deadline instead, such as one business day after assignment.]
-- **Maximum retries:** [Nonnegative whole number of additional attempts. Use 0 if retries are not permitted. For L0, write "Not applicable — manual task."]
-- **Retry only when:** [Conditions that permit another attempt and any waiting interval. For work that changes records or sends messages, explain how retries avoid duplicates; hand off if the action's outcome is uncertain. Write "Not applicable" for manual tasks or when retries are 0.]
-- **On timeout, exhausted retries, or an error that cannot be retried:** [State the status or evidence recorded and the exception task or person receiving the case. Do not continue as if the task succeeded.]
-
-*Copy the Tool block as needed. For a fully manual task, you may still need to retrieve the information and hand it to human and allow updates from human, depending on your manual task context.*
-
-
-
+- **Tool name:** review_report
+- **Input:** Matchup Evidence Package, Draft Research Report when available, and Exception Details when applicable.
+- **Output:** Approved Research Report, Research Revision Instructions, or Review Closure Record.
+- **Implementation Route:** File operations through a human-operated document editor and manual handoff through the requester's recorded delivery channel.
+- **Integration approach:** Direct integration.
+- **Role in this task:** Allow the reviewer to read the report and evidence, inspect cited public sources, record a decision, and manually deliver the approved report or closure explanation. The reviewer may correct wording or formatting without changing the factual meaning. Changes requiring new evidence must follow the authorized research-revision path. Access is limited to the current request, report, evidence, review record, and intended recipient.
+- **Task timeout:** Human response deadline of one business day after each review assignment, including a revised report returned for review.
+- **Maximum retries:** Not applicable — manual task.
+- **Retry only when:** Not applicable.
+- **On timeout, exhausted retries, or an error that cannot be retried:** The team coordinator records the unresolved review or delivery error. If the reviewer misses the deadline, the coordinator completes a Review Closure Record and notifies the requester. If delivery fails, retain the approval record but mark delivery as incomplete. Verify whether the recipient received the report before arranging another manual delivery, preventing duplicate releases. If delivery remains impossible, record the failure and close the run without claiming successful delivery.
