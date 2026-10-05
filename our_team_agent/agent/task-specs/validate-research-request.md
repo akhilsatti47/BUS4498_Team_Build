@@ -1,65 +1,77 @@
-# [Exact task name] Task Specification
-
-*BUS 4498 Team Build Milestone 1. Use one copy for each L0, L1, or L2 task, including human-review tasks. Use the Level 3 template for L3 tasks.*
-
-*Save each completed copy in `our_team_agent/agent/task-specs/` in `BUS4498_Team_Build`. Name the file after the task using lowercase words separated by hyphens: Check Completeness becomes `check-completeness.md`. Replace `&` with `and` and remove other punctuation. Keep the exact workflow task ID and name inside the file.*
-
-*Replace every bracketed prompt, copy input/output/tool blocks as needed, and remove unused blocks and instructions. Specify the design; do not create tool scripts. Record the reason for the automation level only in the team worksheet.*
+# Validate Research Request Task Specification
 
 ## Basic Information
 
-- **Task ID:** [Exact ID from the workflow.]
-- **Task name:** [Exact verb-object task name from the workflow.]
-- **Task type:** [Choose the primary type: Retrieve, Sense, Reason, Decide, Act, Verify, Remember, or Learn.]
-- **Task owner:** [Person or role accountable for this task.]
-
-*Task type describes the work. Automation level describes how it is performed. Tool type describes its proposed implementation.*
+- **Task ID:** T02
+- **Task name:** Validate Research Request
+- **Task type:** Verify
+- **Task owner:** Team Jit coordinator, assigned to Purajit Ghosh or Akhil Satti.
 
 ## 1. Task Description
 
-[Explain what the task does and why the workflow needs it. Identify the rule, criteria, model-supported operation, or human judgment used to turn its inputs into the required output.]
+This task applies fixed validation rules to the Research Request supplied by T01 Define Research Request.
+
+The request passes validation when:
+- The request ID and requester delivery destination are present.
+- Two distinct teams match the configured NFL team list.
+- The game date is a valid calendar date.
+- The research question is present and identifies a supported analysis category.
+- The question does not request bet placement, account access, or guaranteed outcomes.
+
+Supported analysis categories are game-winner analysis, spread analysis, and game-total analysis. T01 records the selected category as a structured field alongside the research question.
+
+The validator uses required-field checks, date parsing, and predefined lists. It does not interpret arbitrary wording using AI or decide which research actions to perform. Validation confirms request completeness and supported scope; T03 confirms matchup details against source evidence.
 
 ## 2. Inputs
 
 ### Input 1
 
-- **Input name:** [Short, specific name.]
-- **Contents and format:** [Required fields or information and their form, such as a table, structured record, document, image, or human response. Describe the structure; do not invent case data.]
-- **Source:** [Task ID and name, person or role, or named data source that provides the input.]
+- **Input name:** Research Request
+- **Contents and format:** A structured record containing the request ID, requester delivery destination, two NFL team names, game date, research question, selected analysis category, submission timestamp, and submission status.
+- **Source:** T01 Define Research Request.
 
-*Copy the Input block for each additional input.*
+### Input 2
 
-- **If a required input is missing or invalid:** [State what happens and identify the exception task or responsible person.]
+- **Input name:** Request Validation Rules
+- **Contents and format:** A team-maintained configuration containing required fields, accepted date format, NFL team names and aliases, supported analysis categories, and explicit prohibited-action options.
+- **Source:** Team Jit, maintained by Purajit Ghosh and Akhil Satti.
+
+- **If a required input is missing or invalid:** Missing or invalid request fields produce Request Correction Feedback for T01. If the request cannot be read or the validation configuration is missing or unusable, record a Validation Exception Record and notify the team coordinator. Do not forward an unvalidated request to T03.
 
 ## 3. Outputs
 
 ### Output 1
 
-- **Output name:** [Short, specific name.]
-- **Contents and format:** [Required fields or information and their form, including the result, status, or evidence needed by the recipient.]
-- **Next task or recipient:** [Task ID and name, person or role, or storage location that receives the output.]
-- **Complete when:** [Observable condition showing that this output is ready to use.]
+- **Output name:** Validated Research Request
+- **Contents and format:** The original request fields plus normalized team names, normalized game date, selected analysis category, validation timestamp, validation status Passed, and results of the fixed checks.
+- **Next task or recipient:** T03 Research Matchup.
+- **Complete when:** Every required check passes and the validated record is available to T03.
 
-*Copy the Output block for each additional output.*
+### Output 2
+
+- **Output name:** Request Correction Feedback
+- **Contents and format:** A structured message containing the request ID, status Correction Required, failed checks, missing or invalid fields, unsupported selections, and specific corrections needed.
+- **Next task or recipient:** T01 Define Research Request and the research requester.
+- **Complete when:** The feedback identifies every detected validation issue and is available to T01 for correction of the same request.
+
+### Output 3
+
+- **Output name:** Validation Exception Record
+- **Contents and format:** A structured record containing the request ID when available, status Validation Failed — Technical Error, error details, timestamp, attempt count, and available request data.
+- **Next task or recipient:** Team coordinator responsible for T02.
+- **Complete when:** The coordinator receives the failure record and the request remains blocked from T03 pending resolution.
 
 ## 4. Planned Tools
 
-*Use a verb-object name, usually matching the task: Check Completeness can use `check_completeness`. List every tool separately and use the same name and type wherever the tool appears in the project.*
-
 ### Tool 1
 
-- **Tool name:** [Proposed verb-object name.]
-- **Input:** [replace with a input name listed above]
-- **Output:** [replace with a output name listed above]
-- **Implementation Route:** [file operations, functions/scripts, database queries, and web API calls]
-- **Integration approach:** [direct integration, or MCP integration]
-- **Role in this task:** [What the tool does with which inputs and what result it returns or state it changes.]
-- **Task timeout:** [Maximum total elapsed time for one task run, with units. For L0, state a human response deadline instead, such as one business day after assignment.]
-- **Maximum retries:** [Nonnegative whole number of additional attempts. Use 0 if retries are not permitted. For L0, write "Not applicable — manual task."]
-- **Retry only when:** [Conditions that permit another attempt and any waiting interval. For work that changes records or sends messages, explain how retries avoid duplicates; hand off if the action's outcome is uncertain. Write "Not applicable" for manual tasks or when retries are 0.]
-- **On timeout, exhausted retries, or an error that cannot be retried:** [State the status or evidence recorded and the exception task or person receiving the case. Do not continue as if the task succeeded.]
-
-*Copy the Tool block as needed. For a fully manual task, you may still need to retrieve the information and hand it to human and allow updates from human, depending on your manual task context.*
-
-
-
+- **Tool name:** validate_request
+- **Input:** Research Request and Request Validation Rules.
+- **Output:** Validated Research Request, Request Correction Feedback, or Validation Exception Record.
+- **Implementation Route:** Functions/scripts applying deterministic checks and file operations to read inputs and save the validation result. No script is required for this milestone.
+- **Integration approach:** Direct integration.
+- **Role in this task:** Check required fields, normalize accepted team aliases, parse the game date, and compare structured scope selections against the configured rules. Permissions are limited to reading the current request and validation configuration and writing its validation result. The tool cannot modify the user's research intent, retrieve matchup evidence, place bets, or release reports.
+- **Task timeout:** Maximum total elapsed time of 10 seconds, including any retry and waiting interval.
+- **Maximum retries:** 1.
+- **Retry only when:** A temporary file-read or file-write failure occurs and sufficient time remains. Wait one second before retrying. Use the same request ID and submission timestamp to identify the validation result, and check whether the result already exists before writing again. Do not automatically retry failed field checks or an invalid configuration. If the outcome of a write or handoff is uncertain, notify the coordinator rather than creating duplicate results.
+- **On timeout, exhausted retries, or an error that cannot be retried:** Record a Validation Exception Record and hand the case to the team coordinator. Keep the request blocked from T03. The coordinator may restore the required configuration or file access and arrange a new validation run. If the issue cannot be resolved within one business day, the coordinator records closure and delivers an explanation to the requester.
