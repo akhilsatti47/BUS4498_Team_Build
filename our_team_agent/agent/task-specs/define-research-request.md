@@ -1,65 +1,69 @@
-# [Exact task name] Task Specification
-
-*BUS 4498 Team Build Milestone 1. Use one copy for each L0, L1, or L2 task, including human-review tasks. Use the Level 3 template for L3 tasks.*
-
-*Save each completed copy in `our_team_agent/agent/task-specs/` in `BUS4498_Team_Build`. Name the file after the task using lowercase words separated by hyphens: Check Completeness becomes `check-completeness.md`. Replace `&` with `and` and remove other punctuation. Keep the exact workflow task ID and name inside the file.*
-
-*Replace every bracketed prompt, copy input/output/tool blocks as needed, and remove unused blocks and instructions. Specify the design; do not create tool scripts. Record the reason for the automation level only in the team worksheet.*
+# Define Research Request Task Specification
 
 ## Basic Information
 
-- **Task ID:** [Exact ID from the workflow.]
-- **Task name:** [Exact verb-object task name from the workflow.]
-- **Task type:** [Choose the primary type: Retrieve, Sense, Reason, Decide, Act, Verify, Remember, or Learn.]
-- **Task owner:** [Person or role accountable for this task.]
-
-*Task type describes the work. Automation level describes how it is performed. Tool type describes its proposed implementation.*
+- **Task ID:** T01
+- **Task name:** Define Research Request
+- **Task type:** Decide
+- **Task owner:** Research requester, with the team coordinator monitoring the response deadline.
 
 ## 1. Task Description
 
-[Explain what the task does and why the workflow needs it. Identify the rule, criteria, model-supported operation, or human judgment used to turn its inputs into the required output.]
+The requester manually selects the NFL matchup, game date, and research question. The requester records these details so later tasks can validate the request and research the intended matchup.
+
+If T02 Validate Research Request returns a correction message, the requester reviews the identified issues and updates the same request. This task defines the user's research intent; it does not gather statistics, predict outcomes, or place bets.
 
 ## 2. Inputs
 
 ### Input 1
 
-- **Input name:** [Short, specific name.]
-- **Contents and format:** [Required fields or information and their form, such as a table, structured record, document, image, or human response. Describe the structure; do not invent case data.]
-- **Source:** [Task ID and name, person or role, or named data source that provides the input.]
+- **Input name:** Research Intent
+- **Contents and format:** A human response identifying the two NFL teams, game date, research question, and a contact or delivery destination for the result.
+- **Source:** Research requester.
 
-*Copy the Input block for each additional input.*
+### Input 2
 
-- **If a required input is missing or invalid:** [State what happens and identify the exception task or responsible person.]
+- **Input name:** Request Correction Feedback
+- **Contents and format:** A structured message containing the existing request ID, missing or invalid fields, unsupported scope if applicable, and the corrections needed. This input is required only when a request is returned for correction.
+- **Source:** T02 Validate Research Request.
+
+- **If a required input is missing or invalid:** The requester supplies or corrects the information before forwarding the request. The task remains paused while awaiting the response. If correction feedback is unclear or unavailable, the team coordinator resolves the issue. If the response deadline expires, the team coordinator closes the run and notifies the requester.
 
 ## 3. Outputs
 
 ### Output 1
 
-- **Output name:** [Short, specific name.]
-- **Contents and format:** [Required fields or information and their form, including the result, status, or evidence needed by the recipient.]
-- **Next task or recipient:** [Task ID and name, person or role, or storage location that receives the output.]
-- **Complete when:** [Observable condition showing that this output is ready to use.]
+- **Output name:** Research Request
+- **Contents and format:** A structured record containing:
+  - Unique request ID.
+  - Requester contact or delivery destination.
+  - Two NFL team names.
+  - Game date.
+  - Research question.
+  - Submission timestamp.
+  - Status: Submitted or Resubmitted.
+  - Corrections made, when applicable.
+- **Next task or recipient:** T02 Validate Research Request.
+- **Complete when:** The requester has recorded all required fields and forwarded the record to T02. A corrected submission retains the original request ID.
 
-*Copy the Output block for each additional output.*
+### Output 2
+
+- **Output name:** Request Closure Record
+- **Contents and format:** A structured record containing the request ID, status Closed — Requester Response Deadline Expired, outstanding information, closure timestamp, and confirmation that a closure explanation was delivered.
+- **Next task or recipient:** Research requester and team coordinator.
+- **Complete when:** The team coordinator has recorded the unsuccessful closure and delivered an explanation to the requester. This output applies only when the response deadline expires.
 
 ## 4. Planned Tools
 
-*Use a verb-object name, usually matching the task: Check Completeness can use `check_completeness`. List every tool separately and use the same name and type wherever the tool appears in the project.*
-
 ### Tool 1
 
-- **Tool name:** [Proposed verb-object name.]
-- **Input:** [replace with a input name listed above]
-- **Output:** [replace with a output name listed above]
-- **Implementation Route:** [file operations, functions/scripts, database queries, and web API calls]
-- **Integration approach:** [direct integration, or MCP integration]
-- **Role in this task:** [What the tool does with which inputs and what result it returns or state it changes.]
-- **Task timeout:** [Maximum total elapsed time for one task run, with units. For L0, state a human response deadline instead, such as one business day after assignment.]
-- **Maximum retries:** [Nonnegative whole number of additional attempts. Use 0 if retries are not permitted. For L0, write "Not applicable — manual task."]
-- **Retry only when:** [Conditions that permit another attempt and any waiting interval. For work that changes records or sends messages, explain how retries avoid duplicates; hand off if the action's outcome is uncertain. Write "Not applicable" for manual tasks or when retries are 0.]
-- **On timeout, exhausted retries, or an error that cannot be retried:** [State the status or evidence recorded and the exception task or person receiving the case. Do not continue as if the task succeeded.]
-
-*Copy the Tool block as needed. For a fully manual task, you may still need to retrieve the information and hand it to human and allow updates from human, depending on your manual task context.*
-
-
-
+- **Tool name:** record_research_request
+- **Input:** Research Intent and, when applicable, Request Correction Feedback.
+- **Output:** Research Request.
+- **Implementation Route:** File operations through a human-operated editor that saves the structured request record. No script is required for this manual task.
+- **Integration approach:** Direct integration through manual file entry and handoff.
+- **Role in this task:** The requester enters or edits the research details and saves the record for T02. Access is limited to the current request record; the tool does not retrieve betting data or access betting accounts.
+- **Task timeout:** Human response deadline of one business day after the initial request is assigned or a correction message is delivered.
+- **Maximum retries:** Not applicable — manual task.
+- **Retry only when:** Not applicable.
+- **On timeout, exhausted retries, or an error that cannot be retried:** Record the outstanding information or file-entry error and notify the team coordinator. On deadline expiry, the coordinator completes the Request Closure Record and delivers the closure explanation. If saving or forwarding fails, the coordinator verifies whether the existing record was received before arranging another manual handoff. Do not forward an incomplete request as completed or create a duplicate request.
