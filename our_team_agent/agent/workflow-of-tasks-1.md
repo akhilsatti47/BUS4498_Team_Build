@@ -1,37 +1,55 @@
 # Workflow of Tasks
 
-*BUS 4498 Team Build Milestone 1. Save this file at `our_team_agent/agent/workflow-of-tasks.md` in `BUS4498_Team_Build`. Complete the prompts for your team's own problem. Remove these instructions and unused prompts before submitting.*
-
 ## 1. Workflow Goal
 
 This workflow supports the goal in our completed [team charter](PASTE_CHARTER_FILE_URL_HERE).
 
-*Open your completed charter file on GitHub, copy its address from the browser, and replace `PASTE_CHARTER_FILE_URL_HERE` with that address. Keep the charter in its existing location; do not create a second charter.*
+BetBrief helps adults researching NFL bets gather and evaluate matchup information more efficiently. The workflow produces a report with supporting sources and clearly stated uncertainty, subject to human review before release.
 
 ## 2. Workflow Trigger
 
-[State the event, request, schedule, or condition that starts one run.]
+One run begins when a requester submits an NFL matchup research request containing the teams, game date, and research question.
 
 ## 3. Completion Condition at Runtime
 
-[State the observable condition that ends one run successfully. Identify what result or evidence must exist. This is different from the long-term target in your system goal.]
+A run ends successfully when the requester receives a human-approved research report containing:
+
+- The requested matchup and game date.
+- Relevant statistics, injury updates, betting odds, and weather information where applicable.
+- Source links and retrieval timestamps.
+- An explanation of the evidence, conflicting findings, and uncertainty.
+- A record of human approval.
+
+If the request cannot be completed, the run closes with an explanation delivered to the requester and a recorded reason for closure. This is an exception outcome rather than successful report completion.
 
 ## 4. General Workflow
 
-[Describe the normal sequence of tasks in one or two paragraphs. Then explain what happens when necessary information is missing, a tool fails, or a case requires human review. Identify what the person receives and whether the workflow stops or resumes after review.]
+The requester defines the research request in T01 Define Research Request. T02 Validate Research Request checks that the required information is present and the request is within the supported NFL research scope. For valid requests, T03 Research Matchup gathers evidence from approved sources, identifies missing or conflicting information, and chooses additional research actions within its tool and time limits. T04 Draft Research Report uses the collected evidence to prepare a structured report. T05 Review and Release Report checks factual support, source relevance, and the explanation of uncertainty before delivering an approved report to the requester.
+
+If request details are missing or unsupported, T02 returns a correction message to the requester and the workflow pauses at T01. It resumes when the requester supplies corrected details. If no correction arrives within one business day, the run closes and the requester receives a closure explanation.
+
+If a research tool fails, T03 follows the tool's specified retry limit and may use an approved alternative source. If necessary evidence remains unavailable or unresolved when research limits are reached, T03 sends its evidence package and limitation explanation directly to T05. The reviewer receives the request, available evidence, source links, unresolved issues, and any draft report. The workflow pauses while the reviewer decides whether to release the report, request further research, or close the run.
+
+The reviewer may request one additional research pass, which resumes the workflow at T03. If the report still cannot be approved, the run closes with an explanation of its limitations. If the reviewer does not respond within one business day, the run closes and the requester is notified. The system does not present unsupported claims as facts or place bets on the requester's behalf.
 
 ## 5. Workflow Diagram
 
-*Replace the example diagram with your team's workflow. Give each work task a unique ID, such as T1, and a verb-object name, such as Retrieve Requests. Label branch conditions. Show human-review paths and stopping points. Use the same task IDs and names in the worksheet, task summary, and task specifications. Start/end markers and gateways that only route the flow are not work tasks.*
-
 ```mermaid
 flowchart TD
-    START([Workflow trigger]) --> T1["T1: First task"]
-    T1 --> D1{"Required evidence available?"}
-    D1 -->|Yes| T2["T2: Next task"]
-    D1 -->|No| T3["T3: Review exception"]
-    T2 --> END([Successful completion])
-    T3 --> HANDOFF([Stopped for human review])
-```
+    START(["NFL research request submitted"]) --> T01["T01: Define Research Request"]
+    T01 --> T02["T02: Validate Research Request"]
+    T02 --> D1{"Request complete and supported?"}
 
-*The example labels are placeholders, not required project tasks. After editing, use GitHub Preview to check that the Mermaid diagram renders. Create a specification for every work task, including human-review tasks, and list each one in `task-summary.md`. Record automation levels and reasons only in the team worksheet.*
+    D1 -->|Yes| T03["T03: Research Matchup"]
+    D1 -->|No; request correction| T01
+    T01 -->|Correction deadline expires| CLOSED(["Requester receives closure explanation"])
+
+    T03 --> D2{"Evidence sufficient within research limits?"}
+    D2 -->|Yes| T04["T04: Draft Research Report"]
+    D2 -->|No; send evidence and limitations| T05["T05: Review and Release Report"]
+    T04 --> T05
+
+    T05 -->|Approved and delivered| END(["Requester receives approved report"])
+    T05 -->|Further research needed; one additional pass| T03
+    T05 -->|Cannot approve or review deadline expires| CLOSED
+```
