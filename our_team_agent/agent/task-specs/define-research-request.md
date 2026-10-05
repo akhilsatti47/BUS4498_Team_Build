@@ -18,8 +18,8 @@ If T02 Validate Research Request returns a correction message, the requester rev
 ### Input 1
 
 - **Input name:** Research Intent
-- **Contents and format:** A human response identifying the two NFL teams, game date, research question, and a contact or delivery destination for the result.
-- **Source:** Research requester.
+- **Contents and format:** A human response identifying the two NFL teams, game date, research question, and a contact or delivery destination for the result. Selected analysis category: game-winner analysis, spread analysis, or game-total analysis.
+- **Source:** Research requester. 
 
 ### Input 2
 
@@ -43,6 +43,7 @@ If T02 Validate Research Request returns a correction message, the requester rev
   - Submission timestamp.
   - Status: Submitted or Resubmitted.
   - Corrections made, when applicable.
+  - Selected analysis category.
 - **Next task or recipient:** T02 Validate Research Request.
 - **Complete when:** The requester has recorded all required fields and forwarded the record to T02. A corrected submission retains the original request ID.
 
