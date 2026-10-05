@@ -2,7 +2,7 @@
 
 **BUS 4498 Team Build**
 
-**Problem to be solved**: Increase the attendance to the registration rate in the margin of 30-40% for the organization CodeBox events that are held at Cal Poly Slo club meetings. Our system aims to improve this ratio by identifying at-risk registrants early and prompting timely confirmations, so staff officials can plan more accurately and reduce wasted resources.
+**Problem to be solved**: People researching NFL bets must gather and compare information across multiple sources, including team statistics, player injuries, betting odds, and weather conditions. This process takes an estimated 20 minutes per matchup and can lead to overlooked or conflicting information. Our system aims to reduce research time while providing a clear, sourced analysis of the matchup and its uncertainties.
 
 ## Team Charter
 
@@ -15,10 +15,10 @@ Team Jit
 
 
 ### System Name
-CBAttend
+BetBrief
 
 ### System Goal
-For CodeBox officers and event organizers, increase the reliability of attendance at club meetings so that room capacity, materials, and staffing can be planned with confidence, measured by the attend-to-registration rate moving from approximately 30–40% to at least 70%, without penalizing or removing students who fail to attend, and without contacting registrants more than twice per event.
+For adults researching NFL bets, make matchup research faster and easier to evaluate, measured by average research time decreasing from an estimated baseline of 20 minutes to five minutes or less across 10 test matchups by the final project deadline, without presenting unsupported claims as facts, hiding uncertainty, or placing bets on the user’s behalf.
 
 ### Who Is Better Off When This Works?
-CodeBox officers and event organizers will be better off, since they will be able to plan room capacity, materials, and staffing for club meetings with greater confidence and less wasted resources.
+Adults researching NFL bets benefit by spending less time gathering information and receiving a clear, evidence-based explanation of the factors and uncertainties affecting their decisions.
